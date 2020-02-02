@@ -2,7 +2,8 @@
 
 
 void connectionInfo::setConnectionType(void) {
-#define MAX_KEY_NAME_LENGTH 255
+#define MAX_KEY_NAME_LENGTH 512
+#define MAX_VALUE_NAME_LENGTH 64
 
 	//RegGetValueW(HKEY_CURRENT_USER, L"\Software\Microsoft\Windows\CurrentVersion\Explorer\Map Network Drive MRU");
 	//RegGetValueW(HKEY_CURRENT_USER, L"\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\##[IP]#[Directory]");
@@ -16,12 +17,35 @@ void connectionInfo::setConnectionType(void) {
 		DWORD nameLength = MAX_KEY_NAME_LENGTH;
 		wchar_t keyName[MAX_KEY_NAME_LENGTH];
 		std::cout << "number of subkeys : " << numOfSubkeys << '\n';
+
+		m_curConStorages = std::vector<currentConnectedStorages>(numOfSubkeys);
+
 		for (DWORD i = 0; i < numOfSubkeys; i++) {
 			retCode = RegEnumKeyExW(hkeyNetwork, i, keyName, &nameLength, NULL, NULL, NULL, NULL);
 			if (retCode == ERROR_SUCCESS) {
-				std::wcout << i << "th subkey : " << keyName << "\n";
+				HKEY storageSubkey;
+				DWORD valueLength = MAX_VALUE_NAME_LENGTH;
+				wchar_t valueName[MAX_VALUE_NAME_LENGTH];
+
+				std::wstring subkey = L"Network\\";
+				subkey.append(keyName);
+				RegOpenKeyExW(HKEY_CURRENT_USER, subkey.c_str(), NULL, KEY_READ | KEY_QUERY_VALUE, &storageSubkey);
+				std::wcout << "subkey : " << subkey << '\n';
 				nameLength = MAX_KEY_NAME_LENGTH;
-			}			
+				
+				for (DWORD j = 0, retCode = ERROR_SUCCESS;; j++) {
+					retCode = RegEnumValueW(storageSubkey, j, valueName, &valueLength, NULL, NULL, NULL, NULL);
+					if (retCode == ERROR_SUCCESS) {
+						std::wcout << "value name : " << valueName << '\n';
+					}
+					else break;
+
+					valueLength = MAX_VALUE_NAME_LENGTH;
+				}
+
+
+				RegCloseKey(storageSubkey);
+			}
 		}
 	}
 	else std::cout << "현재 연결 된 네트워크 장치 없음\n";
@@ -30,18 +54,20 @@ void connectionInfo::setConnectionType(void) {
 }
 
 void connectionInfo::printConnectionInfo(void) {
-	switch (storageType) {
-	case NAS:
+	for (auto& curConStorage : m_curConStorages) {
+		switch (curConStorage.storageType) {
+		case NAS:
 
-		break;
-	case Cloud:
+			break;
+		case Cloud:
 
-		break;
-	case SharedComputer:
+			break;
+		case SharedComputer:
 
-		break;
-	default:
-		std::cerr << "Storage type is not defined\n";
+			break;
+		default:
+			std::cerr << "Storage type is not defined\n";
+		}
 	}
 
 }
