@@ -123,12 +123,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="connectionInfo.cpp" />
+    <ClCompile Include="ConnectedStorageInfo.cpp" />
+    <ClCompile Include="CurrentConnectionInfo.cpp" />
+    <ClCompile Include="LocalConnectionInfo.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="connectionInfo.h" />
+    <ClInclude Include="ConnectedStorageInfo.h" />
+    <ClInclude Include="CurrentConnectionInfo.h" />
+    <ClInclude Include="LocalConnectionInfo.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
