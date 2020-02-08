@@ -125,7 +125,6 @@
   <ItemGroup>
     <ClCompile Include="ConnectedStorageInfo.cpp" />
     <ClCompile Include="CurrentConnectionInfo.cpp" />
-    <ClCompile Include="LocalConnectionInfo.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -133,6 +132,9 @@
     <ClInclude Include="ConnectedStorageInfo.h" />
     <ClInclude Include="CurrentConnectionInfo.h" />
     <ClInclude Include="LocalConnectionInfo.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

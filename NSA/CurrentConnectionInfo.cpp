@@ -1,10 +1,8 @@
 #include "CurrentConnectionInfo.h"
 
 
-void CurrentConnectionInfo::setStorages(void) {
-#define MAX_KEY_NAME_LENGTH 512
-#define MAX_VALUE_NAME_LENGTH 64
-#define DATA_LEN 512
+void CurrentConnectionInfo::setStorages(void){
+
 	HKEY hkeyNetwork;
 	DWORD numOfSubkeys;
 	RegOpenKeyExW(HKEY_CURRENT_USER, L"Network", 0, KEY_READ | KEY_ENUMERATE_SUB_KEYS, &hkeyNetwork);
@@ -16,7 +14,7 @@ void CurrentConnectionInfo::setStorages(void) {
 		std::cout << "현재 연결 된 네트워크 장비 수 : " << numOfSubkeys << '\n';
 
 		numOfcurConStrages = numOfSubkeys;
-		curConStorages = std::vector<currentConnectedStorages>(numOfSubkeys);
+		curConStorages = std::vector<Storage>(numOfSubkeys);
 
 		for (DWORD i = 0; i < numOfSubkeys; i++) {
 			retCode = RegEnumKeyExW(hkeyNetwork, i, keyName, &nameLength, NULL, NULL, NULL, NULL);
@@ -42,9 +40,6 @@ void CurrentConnectionInfo::setStorages(void) {
 							DWORD remotePathLen = DATA_LEN;
 							RegQueryValueExW(hkeySubkey, valueName, NULL, NULL, reinterpret_cast<LPBYTE>(remotePath), &remotePathLen);
 							curConStorages[i].address = remotePath;
-
-							
-
 						}
 						else if (!wcsncmp(valueName, L"UserName", 8)) {
 							wchar_t userName[DATA_LEN];
@@ -59,10 +54,10 @@ void CurrentConnectionInfo::setStorages(void) {
 				}
 
 				if (curConStorages[i].ID == L"") curConStorages[i].storageType = SHARED_COMPUTER;
-				std::wregex reg_Onedrive(L"https://d\.docs\.live\.net/(\\w|\\d)+");
+				std::wregex reg_Https(L"https://(\\w|\\d)+");
 				std::wregex reg_UNC(L"\\\\\\\\[0-9]+.[0-9]+.[0-9]+.[0-9]+(\\\\|\\w|\\d)*");
 
-				if (std::regex_match(curConStorages[i].address, reg_Onedrive)) {
+				if (std::regex_match(curConStorages[i].address, reg_Https)) {
 					curConStorages[i].storageType = ONEDRIVE;
 				}
 				else if (std::regex_match(curConStorages[i].address, reg_UNC)) {
@@ -76,7 +71,7 @@ void CurrentConnectionInfo::setStorages(void) {
 					if (curConStorages[i].storageType == NAS) {
 						std::wstring& ID = curConStorages[i].ID;
 						iter = std::find(ID.begin(), ID.end(), '\\');
-						curConStorages[i].ID = std::wstring(iter + 1, address.end());
+						curConStorages[i].ID = std::wstring(iter + 1, ID.end());
 					}
 				}
 
@@ -84,7 +79,7 @@ void CurrentConnectionInfo::setStorages(void) {
 			}
 		}
 	}
-	else std::cout << "현재 연결 된 네트워크 장치 없음\n";
+	else std::wcout << "현재 연결 된 네트워크 장치 없음\n";
 
 	RegCloseKey(hkeyNetwork);
 }
@@ -108,8 +103,8 @@ void CurrentConnectionInfo::getStorages(void) const {
 		}
 		std::wcout << L"drive Letter : " << curConStorage.driveLetter << std::endl;
 		std::wcout << L"ID : " << curConStorage.ID << std::endl;
-		std::wcout << L"Address : " << curConStorage.address << std::endl;
 		std::wcout << L"Directory : " << curConStorage.directory<< std::endl;
+		std::wcout << L"Address : " << curConStorage.address << std::endl;
 		std::wcout << "-------------------------------------------------------------------------\n\n";
 	}
 }

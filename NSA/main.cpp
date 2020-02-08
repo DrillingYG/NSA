@@ -1,9 +1,10 @@
 #include "Common.h"
 #include "CurrentConnectionInfo.h"
+#include "ConnectedStorageInfo.h"
 
 int main(void) {
-	CurrentConnectionInfo testObj;
-	testObj.setStorages();
-	testObj.getStorages();
+	ConnectedStorageInfo con;
+	con.setStorages();
+
 	return 0;
 }
