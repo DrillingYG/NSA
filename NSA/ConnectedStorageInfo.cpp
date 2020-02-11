@@ -1,5 +1,9 @@
 #include "ConnectedStorageInfo.h"
 
+ConnectedStorageInfo::ConnectedStorageInfo(void) {
+	setStorages();
+}
+
 void ConnectedStorageInfo::setStorages(void) {
 	HKEY hkeyNetDriveMRU;
 	RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Map Network Drive MRU", 0,
@@ -11,7 +15,6 @@ void ConnectedStorageInfo::setStorages(void) {
 	if (numOfValues > 0) {
 		std::wcout << "네트워크 장치 연결 이력\n";
 		std::wcout << "총 " << numOfValues - 1<< "개\n\n";
-		DWORD retCode;
 		wchar_t valueName[MAX_VALUE_NAME_LENGTH];
 		DWORD valueLength = MAX_VALUE_NAME_LENGTH;
 
@@ -19,6 +22,7 @@ void ConnectedStorageInfo::setStorages(void) {
 		for (DWORD i = 0, retCode = ERROR_SUCCESS;; i++) {
 			retCode = RegEnumValueW(hkeyNetDriveMRU, i, valueName, &valueLength, 0, NULL, NULL, NULL);
 			if (retCode == ERROR_SUCCESS) {
+				numOfConnectedStrages += 1;
 				if (!wcsncmp(valueName, L"MRUList", 7)) continue;
 				wchar_t remotePath[DATA_LEN];
 				DWORD remotePathLen = DATA_LEN;
@@ -28,9 +32,15 @@ void ConnectedStorageInfo::setStorages(void) {
 
 				if (std::regex_match(remotePath, reg_UNC)) {
 					std::wcout << "remote Path(UNC) : " << remotePath<< std::endl;
+					ConnectedStorages.emplace_back()
 				}
 				else if (std::regex_match(remotePath, reg_Https)) {
 					std::wcout << "remote Path(https) : " << remotePath << std::endl;
+					std::wstring cid = std::wstring(remotePath);
+					std::wstring::iterator iter = cid.begin() + 10;
+					iter = std::find(cid.begin() + 10, cid.end(), '/');
+					cid = std::wstring(iter + 1, cid.end());
+					
 				}
 			}
 			else break;

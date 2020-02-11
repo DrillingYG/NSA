@@ -2,9 +2,13 @@
 #include "CurrentConnectionInfo.h"
 #include "ConnectedStorageInfo.h"
 
-int main(void) {
+void run() {
+	CurrentConnectionInfo cur;
 	ConnectedStorageInfo con;
-	con.setStorages();
+	cur.mapCidToID(con.)
+}
 
+int main(void) {
+	run();
 	return 0;
 }

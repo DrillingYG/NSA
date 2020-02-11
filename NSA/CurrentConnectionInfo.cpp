@@ -1,5 +1,6 @@
 #include "CurrentConnectionInfo.h"
 
+CurrentConnectionInfo::CurrentConnectionInfo() { setStorages(); }
 
 void CurrentConnectionInfo::setStorages(void){
 
@@ -54,17 +55,22 @@ void CurrentConnectionInfo::setStorages(void){
 				}
 
 				if (curConStorages[i].ID == L"") curConStorages[i].storageType = SHARED_COMPUTER;
-				std::wregex reg_Https(L"https://(\\w|\\d)+");
+				std::wregex reg_Https(L"https://d.docs.live.net/(\\w|\\d)+");
 				std::wregex reg_UNC(L"\\\\\\\\[0-9]+.[0-9]+.[0-9]+.[0-9]+(\\\\|\\w|\\d)*");
 
 				if (std::regex_match(curConStorages[i].address, reg_Https)) {
 					curConStorages[i].storageType = ONEDRIVE;
+					std::wstring& cid = curConStorages[i].address;
+					std::wstring::iterator iter = cid.begin() + 10;
+					iter = std::find(cid.begin() + 10, cid.end(), '/');
+					cid = std::wstring(iter + 1, cid.end());
+					cids[cid] = curConStorages[i].ID;
 				}
 				else if (std::regex_match(curConStorages[i].address, reg_UNC)) {
 					curConStorages[i].storageType = (curConStorages[i].ID == L"" ? SHARED_COMPUTER : NAS);
 					std::wstring& address = curConStorages[i].address;
 					std::wstring::iterator iter = address.begin() + 2;
-					iter = std::find(address.begin() + 2, address.end(), '\\');
+					iter = std::find(iter, address.end(), '\\');
 					curConStorages[i].directory = std::wstring(iter + 1, address.end());
 					curConStorages[i].address = std::wstring(address.begin() + 2, iter);
 
@@ -79,12 +85,17 @@ void CurrentConnectionInfo::setStorages(void){
 			}
 		}
 	}
-	else std::wcout << "현재 연결 된 네트워크 장치 없음\n";
 
 	RegCloseKey(hkeyNetwork);
 }
 
 void CurrentConnectionInfo::getStorages(void) const {
+	std::wcout << " 현재 연결 된 네트워크 장치 수 : " << numOfcurConStrages;
+	
+	if (numOfcurConStrages == 0) {
+		return;
+	}
+
 	for (auto& curConStorage : curConStorages) {
 		switch (curConStorage.storageType) {
 		case NAS:
@@ -107,4 +118,12 @@ void CurrentConnectionInfo::getStorages(void) const {
 		std::wcout << L"Address : " << curConStorage.address << std::endl;
 		std::wcout << "-------------------------------------------------------------------------\n\n";
 	}
+}
+
+void CurrentConnectionInfo::mapCidToID(const std::wstring& cid) {
+	std::map<std::wstring, std::wstring>::iterator finditer = cids.find(cid);
+	if (finditer != cids.end()) {
+		std::wcout << finditer->second << std::endl;
+	}
+	else std::wcout << L"UnKnown" << std::endl;
 }
